@@ -7,7 +7,14 @@
 
 import Foundation
 
-struct Creature: Codable, Hashable {
-   var name: String
-   var url: String // url for detail on pokemon
+struct Creature: Codable, Identifiable {
+    let id = UUID().uuidString
+    
+    var name: String
+    var url: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case url
+    }
 }

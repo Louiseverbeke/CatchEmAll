@@ -4,9 +4,7 @@
 //
 //  Created by Louise Verbeke on 23/03/2026.
 //
-
 import Foundation
-
 
 @Observable // Will watch objects for changes so that SwiftUI will redraw the interface when needed
 class CreatureDetail {
@@ -17,37 +15,48 @@ class CreatureDetail {
     }
     
     struct Sprite: Codable {
-        var front_default: String
+        var other: Other
     }
     
-    var urlString = "" // Update with string passed in from creature clicked on
+    struct Other: Codable {
+        var officialArtwork: OfficialArtwork
+        
+        enum CodingKeys: String, CodingKey {
+            case officialArtwork = "official-artwork"
+        }
+    }
+    
+    struct OfficialArtwork: Codable {
+        var front_default: String? // this might reutrn null, which is nil in swift
+    }
+    
+    var urlString = ""
     var height = 0.0
     var weight = 0.0
-    var ImageURL = ""
+    var imageURL = ""
     
     func getData() async {
         print("🕸️ We are accessing the url \(urlString)")
         
-        // Create a url
+        // Create a URL
         guard let url = URL(string: urlString) else {
-            print("😡 ERROR: Could not create a URL from \(urlString)")
+            print("😡 Error: Could not create a url from \(urlString)")
             return
         }
-        
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             
-            // Tryto decode JSON data into our own data structures
+            // Try to decode JSON data into our own data structure
             guard let returned = try? JSONDecoder().decode(Returned.self, from: data) else {
-                print("😡 JSON ERROR: Could not decode returned JSON data")
+                print("😡 Error: Could not decode returned JSON data")
                 return
             }
             self.height = returned.height
             self.weight = returned.weight
-            self.ImageURL = returned.sprites.front_default
+            self.imageURL = returned.sprites.other.officialArtwork.front_default ?? "n/a"
         } catch {
-            print("😡 ERROR: Could not get data from \(urlString)")
+            print("😡 Error: Could not get data from \(urlString)")
         }
+        
     }
 }
-
